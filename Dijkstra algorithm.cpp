@@ -28,7 +28,7 @@ struct Graph {
 		//Fill the graph with zero edges:
 		for (int i = 0; i <= max; i++ ) {
 			for (int j = 0; j <= i; j++) {
-				e[i][j] = 0; //czy zero?
+				e[i][j] = 0; 
 			}
 		}
 
