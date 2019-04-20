@@ -1,226 +1,168 @@
-#define _CRT_SECURE_NO_WARNINGS
-
 #include <iostream>
 
-struct Vertex 
-{
-	int data;
-	bool open;
+/*Re-edition of my Dijkstra Algorithm representation.
 
-	Vertex(){
-		open = true;
-	}
-};
+IN stream instruction:
 
-struct Graph
-{
-	Vertex *Dijkstr;
-	int **M;
-		
-	void search_path(int vert_numb, int begin_index, int end_index);
+FIRST LINE: number of vertex
+SECOND LINE: k-value (number of edges)
+In the next k-lines  "vertex1<space>vertex2<space>edge length" should be entered in each line
+k+1 LINE:  n-value (number of paths)
+In the next n-lines  "start vertex<space>final vertex" should be entered in each line 
+*/
 
-	Graph(int vert_numb) {
-		Dijkstr = new Vertex[vert_numb];
-
-		//TWO-DIMENSIONAL TRIANGULAR ARRAY:
-		M = new int*[vert_numb]; 
-
-		for (int i = 0; i < vert_numb; i++) {
-			M[i] = new int[i+1];
-		}
-
-		for (int i = 0; i < vert_numb; i++) {
-			for (int j = 0; j <= i; j++) {
-				if (i == j) {
-					M[i][j] = 0;
-				}
-				else {
-					M[i][j] = INT_MAX;
-				}
-			}
-		}
-	}
-};
-
-void Graph::search_path(int vert_numb, int begin_index, int end_index)
-{
-	bool flag = false;
-	int min = INT_MAX;
-
-	for (int i = 0; i < vert_numb; i++) {
-		Dijkstr[i].data = INT_MAX;
-		Dijkstr[i].open = true;
-	}
-
-	while (end_index != begin_index) {
-		for (int i = 0; i < vert_numb; i++) {
-			if (Dijkstr[i].open == true )
-			{
-				if (begin_index > i) {
-					if (M[begin_index][i] != INT_MAX) {
-						if (Dijkstr[begin_index].data == INT_MAX) {
-							Dijkstr[i].data = M[begin_index][i];
-						}
-						else {
-							if (Dijkstr[i].data > M[begin_index][i] + Dijkstr[begin_index].data) {
-								Dijkstr[i].data = M[begin_index][i] + Dijkstr[begin_index].data;
-							}
-						}
-					}
-				}
-				else {
-					if (M[i][begin_index] != INT_MAX) {
-						if (Dijkstr[begin_index].data == INT_MAX) {
-							Dijkstr[i].data = M[i][begin_index];
-						}
-						else {
-							if (Dijkstr[i].data > M[i][begin_index] + Dijkstr[begin_index].data) {
-								Dijkstr[i].data = M[i][begin_index] + Dijkstr[begin_index].data;
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		Dijkstr[begin_index].open = false;
-		//SEARCHING FOR THE SHORTEST PATH
-		for (int i = 0; i < vert_numb; i++) {
-			if (Dijkstr[i].data < min && Dijkstr[i].open == true) {
-				min = Dijkstr[i].data;
-				begin_index = i;
-			}
-		}
-		if (min == INT_MAX) {
-			std::cout << "no path" << '\n';
-			flag = true;
-			break;
-		}
-		min = INT_MAX;
-	}
-	if(flag == false)
-		std::cout << Dijkstr[end_index].data << '\n';
-}
-
-
-//INPUT FUNCTIONS:
-int exp(int base, int index) {
-	int x = 1;
-
-	for (int i = 0; i < index; i++) {
-		x *= base;
-	}
-
-	return x;
-}
-
-int input_int(char *&pointer) {
-	int x = 0;
-	int k = 0;
-
-	while (*pointer != ' ' && *pointer != '\n') {
-		k++;
-		pointer++;
-	}
-	for (int i = 0; i < k; i++) {
-		pointer--;
-		x = x + ((*pointer - 48) * exp(10, i));
-	}
-	pointer = pointer + k;
-
-	return x;
-}
-
-//COUNTING FUNCTION:
-int count_array(int array[], int n, int count) {
-	if (array[n] != -858993460) {
-		return count_array(array, n + 1, count + 1);
-	}
-
-	return count;
-}
-
-bool correct(int tab_out[], int vert_numb, bool flag) {
-	for (int i = 0; i < count_array(tab_out, 0, 0); i++) {
-		if (flag == false) {
-			if ((tab_out[i] >= vert_numb || tab_out[i] < 0) && (i + 1) % 3 != 0) {
-				return false;
-			}
-		}
-		else {
-			if (tab_out[i] >= vert_numb || tab_out[i] < 0) {
-				return false;
-			}
-		}	
-	}
-
-	return true;
-}
-
-void in(char tab_in[],int line_numb, char *&pointer, int tab_out[], FILE *file, int vert_numb, bool flag)
-{
-	int k;
-	do {
-		k = 0;
-		for (int i = 0; i < line_numb; i++) {
-			fgets(tab_in, 100, file);
-			pointer = &tab_in[0];
-
-			for (int j = 0; *pointer != '\0'; j++) {
-				tab_out[k] = input_int(pointer);
-				pointer++;
-				k++;
-			}
-		}
-		if (correct(tab_out, vert_numb, flag) == false) {
-			std::cout << "WORKS ONLY FOR FIGURES <0, VERT_NUMB)\nPlease enter the connections again:\n";
-		}
-	} while (correct(tab_out, vert_numb, flag) == false);
-}
-
-//MAIN:
-int main()
-//WORKS ONLY FOR FIGURES <0, VERT_NUMB)
-{
-	int vert_numb; int line_numb; char rout[100]; char vert[100]; int rout_out[100]; int vert_out[100]; char *pointer; bool flag = false;
+struct Graph {
 	
-	std::cout << "Please enter the number of vertex:" << '\n';
-	std::cin >> vert_numb;
-	std::cin.ignore();
-	Graph g(vert_numb);
+	int **e;
+	int max;
 
-	std::cout << "Please enter the number of connections:" << '\n';
-	std::cin >> line_numb;
-	std::cin.ignore();
-
-	//INPUT DATA:
-	std::cout << "Enter the connections:" << '\n';
-	in(vert, line_numb, pointer, vert_out, stdin, vert_numb, flag);
-
-	//GRAPH CREATING:
-	for (int i = 0; i < line_numb*3; i = i+3) {
-		if (vert_out[i] > vert_out[i + 1]) {
-			g.M[vert_out[i]][vert_out[i+1]] = vert_out[i + 2];
+	Graph(int max, int *arr, int n)
+	{
+		this->max = max;
+		//Alocate memmory:
+		e = new int *[max+2];
+		for (int i = 0; i <= max; i++) {
+			e[i] = new int[i+2];
 		}
-		else {		
-			g.M[vert_out[i+1]][vert_out[i]] = vert_out[i + 2];
+
+		//Fill the graph with zero edges:
+		for (int i = 0; i <= max; i++ ) {
+			for (int j = 0; j <= i; j++) {
+				e[i][j] = 0; //czy zero?
+			}
+		}
+
+		//Fill the graph with the edge values:
+		for (int i = 0; i < n*3; i+=3) { 
+			if(arr[i]>arr[i+1])
+				e[arr[i]][arr[i + 1]] = arr[i + 2];
+			else
+				e[arr[i+1]][arr[i]] = arr[i + 2];
 		}
 	}
 
-	//ENTER THE START VERTEX AND THE FINAL VERTEX:
-	std::cout << "Please enter the number of paths:" << '\n';
-	std::cin >> line_numb;
-	std::cin.ignore();
-	std::cout << "Please enter the start vertex and the final vertex:" << '\n';
+	int dijkstra(int start, int finish);
 
-	flag = true;
-	in(rout, line_numb, pointer, rout_out, stdin, vert_numb, flag);
+	~Graph()
+	{
+		for (int i = 0; i <= max; i++) {
+			delete[] e[i];	
+		}
+		delete[] e;
+	}
+};
 
-	std::cout << "SOLUTION:\n";
-	//Dijkstra:
-	for (int i = 0; i < line_numb*2; i=i+2) {
-		g.search_path(vert_numb, rout_out[i+0], rout_out[i+1]);
+int Graph::dijkstra(int start, int destination) //n - number of verticles
+{
+	int counter = 0;
+	if (start == destination)
+		return 0;
+	
+	int *E = new int[max+2];
+	bool *closed = new bool[max+2];
+	for (int i = 0; i <= max; i++) {
+		E[i] = INT_MAX;
+		closed[i] = false;
 	}
 
+	E[start] = 0;
+	int minV = start; int prev_minV = INT_MAX;
+	if (destination>max) {
+		delete[] closed;
+		delete[] E;
+		return 0;
+	}
+		
+	while (!closed[destination]) { 
+		closed[minV] = true;
+
+		if (prev_minV == minV) {
+			delete[] closed;
+			delete[] E;
+			return 0;
+		}
+			
+		for (int i = 0; i <= max; i++) {
+			if (i <= minV) {
+				if (e[minV][i] == 0 || closed[i])
+					continue;
+				else if (E[minV] + e[minV][i] < E[i])
+					E[i] = E[minV] + e[minV][i];
+			}
+			else {
+				if (e[i][minV] == 0 || closed[i])
+					continue;
+				else if (E[minV] + e[i][minV] < E[i])
+					E[i] = E[minV] + e[i][minV];
+			}
+		}
+
+		prev_minV = minV;
+
+		//find minV:
+		if(minV!=destination)
+			E[minV] = INT_MAX;
+
+		for (int j = 0; j <= max; j++) { 
+			if (E[j] < E[minV] && !closed[j])
+				minV = j;
+		}
+				
+	}
+
+	delete[] closed;
+	int result = E[destination];
+	delete[] E;
+	return result;
+}
+
+int main()
+{
+	int vertN; int max = -1; int n; int *arrIN;
+	
+	std::cin >> vertN; 
+	std::cin >> n;
+	arrIN = new int[3 * n];
+
+	//put the verticles and edge values to arrIN array:
+	for (int i = 0; i < n*3; i++) {
+		std::cin >> arrIN[i];
+		if (max < arrIN[i] && (i+1)%3)
+			max = arrIN[i];
+	}
+	if (max == -1) {
+		std::cin >> n;
+		for (int i = 0; i < n; i++)
+			std::cout << "nie ma" << '\n';
+		
+		delete[] arrIN;
+		return 0;
+	}
+
+	Graph G(max, arrIN, n); 
+
+	int *path; int distance[2];
+	
+	std::cin >> n;
+
+	path = new int[n];
+	
+	//Find the shortest path:
+	for (int i = 0; i < n; i++) {
+		std::cin >> distance[0];
+		std::cin >> distance[1];
+		path[i] = G.dijkstra(distance[0], distance[1]);
+	}
+
+	//View the results:
+	for (int i = 0; i < n; i++) {
+		if (!path[i])
+			std::cout << "nie ma" << '\n';
+		else
+			std::cout << path[i] << '\n';
+	}
+
+	delete[] path;
+	delete[] arrIN;
 	return 0;
 }
